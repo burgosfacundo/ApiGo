@@ -13,10 +13,13 @@ func NewControllerPing() *Controller {
 	return &Controller{}
 }
 
+// Ping godoc
+// @Description Ping for testing de conection
+// @Produce json
+// @Success 200 "OK"
+// @Router /ping [get]
 func (c *Controller) HandlerPing() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		ctx.JSON(http.StatusOK, gin.H{
-			"message": "pong",
-		})
+		ctx.JSON(http.StatusOK, "pong")
 	}
 }

@@ -19,6 +19,17 @@ func NewControllerProducts(service products.Service) *Controller {
 }
 
 // HandlerCreate is a function that calls the service for create a Product in the db
+// @Summary Post new product
+// @Description Create a new product in the db
+// @Tags Products
+// @Accept json
+// @Produce json
+// @Param token header string true "TOKEN_ENV"
+// @Param product body domain.Product true "Product"
+// @Success 201 {object} domain.Product
+// @Failure 400 "Bad Request"
+// @Failure 500 "Internal Server Error"
+// @Router /product [post]
 func (c *Controller) HandlerCreate() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 
@@ -29,10 +40,8 @@ func (c *Controller) HandlerCreate() gin.HandlerFunc {
 
 		// If we have an error return it
 		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-				"message": "bad request",
-				"error":   err,
-			})
+			ctx.AbortWithStatusJSON(http.StatusBadRequest, "bad request")
+			return
 		}
 
 		// We call the service to create the product
@@ -40,20 +49,24 @@ func (c *Controller) HandlerCreate() gin.HandlerFunc {
 
 		// If we have an error return it
 		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-				"message": "Internal server error",
-			})
+			ctx.AbortWithStatusJSON(http.StatusInternalServerError, "Internal server error")
+			return
 		}
 
 		// We return the product that was created
-		ctx.JSON(http.StatusOK, gin.H{
-			"data": product,
-		})
+		ctx.JSON(http.StatusCreated, product)
 
 	}
 }
 
 // HandlerGetAll is a function that calls the service for get all the products in the db
+// @Summary Get all the products
+// @Description Return list of all the products in the db
+// @Tags Products
+// @Produces json
+// @Success 200 {object} []domain.Product
+// @Failure 500 "Internal Server Error"
+// @Router /product [get]
 func (c *Controller) HandlerGetAll() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		// We call the service to get all the products
@@ -61,19 +74,24 @@ func (c *Controller) HandlerGetAll() gin.HandlerFunc {
 
 		// If we have an error return it
 		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-				"message": "Internal server error",
-			})
+			ctx.AbortWithStatusJSON(http.StatusInternalServerError, "Internal server error")
+			return
 		}
 
 		// We return the list of products
-		ctx.JSON(http.StatusOK, gin.H{
-			"data": listProducts,
-		})
+		ctx.JSON(http.StatusOK, listProducts)
 	}
 }
 
 // HandlerGetByID is a function that calls the service for get a product by id
+// @Summary Get product by id
+// @Description Return a product in the db
+// @Tags Products
+// @Produce json
+// @Param id path string true "id"
+// @Success 200 {object} domain.Product
+// @Failure 404 "Product Not Found"
+// @Router /product/{id} [get]
 func (c *Controller) HandlerGetByID() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 
@@ -83,19 +101,26 @@ func (c *Controller) HandlerGetByID() gin.HandlerFunc {
 		// We call the service to update the product
 		product, err := c.service.GetByID(ctx, idParam)
 		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-				"message": "Internal server error",
-			})
+			ctx.AbortWithStatusJSON(http.StatusNotFound, "Product not found")
+			return
 		}
 
 		// We return the product
-		ctx.JSON(http.StatusOK, gin.H{
-			"data": product,
-		})
+		ctx.JSON(http.StatusOK, product)
 	}
 }
 
 // HandlerUpdate is a function that calls the service for update a product by id
+// @Summary Update product
+// @Description Update a product in the db
+// @Tags Products
+// @Produce json
+// @Param id path string true "id"
+// @Param product body domain.Product true "product"
+// @Success 200 {object} domain.Product
+// @Failure 400 "Bad Request"
+// @Failure 404 "Product Not Found"
+// @Router /product/{id} [put]
 func (c *Controller) HandlerUpdate() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 
@@ -109,28 +134,30 @@ func (c *Controller) HandlerUpdate() gin.HandlerFunc {
 
 		// If we have an error return it
 		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-				"message": "bad request",
-				"error":   err,
-			})
+			ctx.AbortWithStatusJSON(http.StatusBadRequest, "bad request")
+			return
 		}
 
 		// We call the service to update the product
 		product, err := c.service.Update(ctx, productRequest, idParam)
 		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-				"message": "Internal server error",
-			})
+			ctx.AbortWithStatusJSON(http.StatusNotFound, "Product not found")
+			return
 		}
 
 		// We return the product that was updated
-		ctx.JSON(http.StatusOK, gin.H{
-			"data": product,
-		})
+		ctx.JSON(http.StatusOK, product)
 	}
 }
 
 // HandlerDelete is a function that calls the service for delete a product by id
+// @Summary Delete product
+// @Description Delete a product in the db
+// @Tags Products
+// @Param id path string true "id"
+// @Success 200 "OK"
+// @Failure 404 "Product Not Found"
+// @Router /product/{id} [delete]
 func (c *Controller) HandlerDelete() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 
@@ -142,14 +169,10 @@ func (c *Controller) HandlerDelete() gin.HandlerFunc {
 
 		// If we have an error return it
 		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-				"message": "Internal server error",
-			})
+			ctx.AbortWithStatusJSON(http.StatusNotFound, "Product not found")
 		}
 
 		// We return the confirmation of the delete
-		ctx.JSON(http.StatusOK, gin.H{
-			"message": "Product eliminated",
-		})
+		ctx.JSON(http.StatusOK, "Product eliminated")
 	}
 }
